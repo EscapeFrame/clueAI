@@ -1,0 +1,25 @@
+# CLUE CD Template
+name: FastAPI CD
+
+on:
+  push:
+    branches: ["develop"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd clue
+            sudo fuser -k -n tcp 8080 || true
+            sudo nohup java -Dspring.profiles.active=prod -jar cd.jar > ./output.log 2>&1 &

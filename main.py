@@ -1,6 +1,18 @@
-def main():
-    print("Hello from clueai!")
+from fastapi import FastAPI
+from app.controller import HealthCheck # AIAgent,
+from app.config.database import Base, engine
+from sqlalchemy.ext.asyncio import AsyncEngine
 
+app = FastAPI()
 
-if __name__ == "__main__":
-    main()
+# app.include_router(AIAgent.router)
+app.include_router(HealthCheck.router)
+
+# @app.on_event("startup")
+# async def startup_event():
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.create_all) 
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
