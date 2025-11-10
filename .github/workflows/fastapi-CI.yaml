@@ -1,4 +1,4 @@
-name: Spring CI
+name: FastAPI CI
 
 on:
   push:
