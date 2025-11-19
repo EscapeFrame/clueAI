@@ -12,3 +12,4 @@ sqlalchemy
 asyncpg
 langchain-google-genai
 greenlet>=1.0.0
+gunicorn>=21.2.0

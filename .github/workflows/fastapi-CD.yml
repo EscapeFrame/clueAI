@@ -6,13 +6,13 @@ on:
     branches: ["develop"]
 
 jobs:
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
-      - name: SSH로 EC2에 접속하기
+      - name: SSH로 EC2에 접속하고 배포하기
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -20,6 +20,31 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script_stop: true
           script: |
-            cd clue
-            sudo fuser -k -n tcp 8080 || true
-            sudo nohup java -Dspring.profiles.active=prod -jar cd.jar > ./output.log 2>&1 &
+            cd clueai || exit 1
+
+            git fetch origin
+            git checkout develop
+            git pull origin develop
+
+            if [ ! -f .env ]; then
+              echo "Error: .env file not found in $(pwd)"
+              echo "Please create .env file based on .env.example"
+              exit 1
+            fi
+
+            docker-compose down || true
+
+            docker-compose up -d --build
+
+            docker image prune -f
+
+            sleep 5
+            echo "=== Container Status ==="
+            docker-compose ps
+
+            echo ""
+            echo "=== Recent Logs ==="
+            docker-compose logs --tail=20 app
+
+            echo ""
+            echo "Deployment completed successfully!"
