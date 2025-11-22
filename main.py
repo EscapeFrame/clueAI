@@ -1,11 +1,12 @@
 from fastapi import FastAPI
-from app.controller import HealthCheck # AIAgent,
+from app.controller import HealthCheck, AgentController, ChatController
 from app.config.database import Base, engine
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 app = FastAPI()
 
-# app.include_router(AIAgent.router)
+app.include_router(AgentController.router)
+app.include_router(ChatController.router)
 app.include_router(HealthCheck.router)
 
 # @app.on_event("startup")

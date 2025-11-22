@@ -122,4 +122,7 @@ cython_debug/
 # VS Code
 .vscode/
 
+# Project specific
 DEPLOYMENT.md
+WORK_LOG.md
+API_SPECIFICATION.md
