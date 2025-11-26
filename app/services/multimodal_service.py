@@ -199,7 +199,7 @@ class MultimodalService:
             
             response = s3_client.get_object(Bucket=settings.aws_s3_bucket, Key=s3_key)
             ppt_bytes = response['Body'].read()
-         ㄱ   
+         
             return self._extract_from_ppt_bytes(ppt_bytes)
             
         except Exception as e:
