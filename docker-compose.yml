@@ -1,6 +1,18 @@
-version: "3.8"
-
 services:
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_TOKEN_TRANSPORT_HEADER=X-Chroma-Token
+    networks:
+      - app-network
+
   app:
     build: .
     container_name: clueai-app
@@ -11,9 +23,10 @@ services:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql+asyncpg://clue1234:clue52025@my_postgres:5432/clue
+    depends_on:
+      - chromadb
     networks:
-      - cluebackend_web-net
+      - app-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
@@ -22,5 +35,5 @@ services:
       start_period: 40s
 
 networks:
-  cluebackend_web-net:
-    external: true
+  app-network:
+    driver: bridge
