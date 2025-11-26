@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
@@ -11,9 +11,16 @@ services:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql+asyncpg://clue1234:clue52025@my_postgres:5432/clue
+    networks:
+      - cluebackend_web-net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+networks:
+  cluebackend_web-net:
+    external: true

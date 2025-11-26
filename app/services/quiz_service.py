@@ -3,7 +3,7 @@
 RAG 기반 문제 생성 로직
 """
 
-from typing import List, Optional
+from typing import List, Optional, Dict
 from uuid import UUID
 import logging
 
@@ -143,6 +143,8 @@ class QuizService:
             if not document:
                 logger.warning(f"Document {document_id} not found in PostgreSQL")
                 return []
+            
+            logger.info(f"Document found - type: {document.type}, value: {document.value}, content_type: {document.content_type}")
             
             content = await self.document_content_service.get_document_content(document)
             

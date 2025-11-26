@@ -24,10 +24,15 @@ class DocumentContentService:
         self.s3_bucket = settings.aws_s3_bucket
         self.s3_client = None
         
+        logger.info(f"AWS Config - Bucket: {self.s3_bucket}, Region: {settings.aws_region}")
+        logger.info(f"AWS Access Key ID exists: {bool(settings.aws_access_key_id)}")
+        logger.info(f"AWS Secret Key exists: {bool(settings.aws_secret_access_key)}")
+        
         if self.s3_bucket:
             try:
                 # AWS 자격증명이 있으면 사용, 없으면 기본 자격증명 체인 사용
                 if settings.aws_access_key_id and settings.aws_secret_access_key:
+                    logger.info("Using explicit AWS credentials")
                     self.s3_client = boto3.client(
                         's3',
                         region_name=settings.aws_region,
@@ -35,6 +40,7 @@ class DocumentContentService:
                         aws_secret_access_key=settings.aws_secret_access_key
                     )
                 else:
+                    logger.warning("AWS credentials not found, using default credential chain")
                     self.s3_client = boto3.client('s3', region_name=settings.aws_region)
                 
                 logger.info(f"S3 client initialized with bucket: {self.s3_bucket}")
@@ -52,11 +58,16 @@ class DocumentContentService:
             문서 내용 (텍스트)
         """
         try:
+            logger.info(f"Document type: {document.type}, value: {document.value}")
+            logger.info(f"Document content_type: {document.content_type}, original_file_name: {document.original_file_name}")
+            
             if document.type == FileType.FILE:
                 # S3에서 파일 내용 가져오기
+                logger.info(f"Attempting to fetch from S3 with key: {document.value}")
                 return await self._get_from_s3(document.value)
             elif document.type == FileType.URL:
                 # URL에서 내용 가져오기
+                logger.info(f"Attempting to fetch from URL: {document.value}")
                 return await self._get_from_url(document.value)
             else:
                 logger.error(f"Unknown document type: {document.type}")
